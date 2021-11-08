@@ -3,10 +3,32 @@
   Edición de la película {{ pelicula.titulo }}
 {% endblock %}
 {% block main %}
+    
   {{ parent() }}
   <p>
     Edición de la película <b>{{ pelicula.titulo }}</b>.
   </p>
-
-  {{ form(formulario) }}
+  <div class="border row align-items-center justify-content-center my-3">
+    <div class="col-8">
+      {{ form(formulario) }}
+    </div>
+    <div class="col-4 text-center">
+      <figure class="my-2 p-2 bg-light">
+        <img class="rounded" style="max-width: 220px"
+          alt="Carátula de {{pelicula.titulo}}"
+          title="Carátula de {{pelicula.titulo}}"
+          src="{{asset(covers_directory~'/'~(pelicula.caratula ?? 'default.jpg'))}}">
+        
+        {% if pelicula.caratula %}
+        <figcaption class="my-2 text-center">
+          Borrar esta Carátula
+          <a href="/pelicula/deleteimage/{{pelicula.id}}">
+            <img src="/images/buttons/delete.png" height="30" width="30"
+              alt="Borrar carátula" title="Borrar carátula">
+          </a>
+        </figcaption>
+        {% endif %}
+      <figure>
+    </div>
+  </div>
 {% endblock %}

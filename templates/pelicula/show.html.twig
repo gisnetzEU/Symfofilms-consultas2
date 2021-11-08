@@ -13,7 +13,10 @@
     <b>SymfoFilms</b>.
   </p>
 
-  <div class="border my-3 p-3">
+  {# <div class="border my-3 p-3"> #}
+  <div class="bg-light border row align-items-center justify-content my-3">
+    <div class="col m-3 p-3 text-star">
+    <h2>Datos:</h2>
     <p>
       <b>ID</b>: {{ pelicula.id }}
     </p>
@@ -21,20 +24,27 @@
       <b>Titulo</b>: {{ pelicula.titulo }}
     </p>
     <p>
-      <b>Duración</b>: {{ pelicula.duracion }}
-    </p>
+      <b>Estreno</b>: {{ pelicula.estreno }}
+    </p>    
     <p>
       <b>Director</b>: {{ pelicula.director }}
     </p>
     <p>
-      <b>Género</b>: {{ pelicula.genero }}
-    </p>
-    <p>
-      <b>Valoración</b>: {{ pelicula.valoracion }}
+      <b>Duración</b>: {{ pelicula.duracion }}
     </p>
     <p>
       <b>Género</b>: {{ pelicula.genero }}
     </p>
+    <p>
+      <b>Valoración</b>: {{ pelicula.valoracion ? pelicula.valoracion~'/5':'Sin valorar' }}</b>
+    </p>
+    </div>
+    <div class="col m-3 p-3 text-center bg-light">
+      <img class="rounded border movie-cover" style="max-width: 240px"
+        alt="Carátula de {{pelicula.titulo}}"
+        title="Carátula de {{pelicula.titulo}}"
+        src="{{asset(covers_directory~'/'~(pelicula.caratula ?? 'default.jpg'))}}">
+    </div>
   </div>
 
   {% if pelicula.sinopsis %}

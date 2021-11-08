@@ -1,16 +1,13 @@
 <?php
 
 namespace App\Controller;
-
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Pelicula;
 use App\Form\PeliculaFormType;
@@ -61,49 +58,48 @@ class PeliculaController extends AbstractController
       /**
      * @Route("/pelicula/create", name="pelicula_create")
      */
-    public function create(Request $request, LoggerInterface $appInfoLogger): Response
+    public function create(Request $request): Response
     {
-        $peli = new Pelicula();
+        $peli = new Pelicula();//crea el objeto de tipo Pelicula
 
-        $formulario = $this->createFormBuilder($peli)
-            ->add('titulo', TextType::class)
-            ->add('duracion', NumberType::class, [
-                'empty_data' => 0,
-                'html5' => true,
-            ])
-            ->add('director', TextType::class)
-            ->add('genero', TextType::class)
-            ->add('sinopsis', TextareaType::class)
-            ->add('estreno', NumberType::class)
-            ->add('valoracion', NumberType::class)
-            ->add('Guardar', SubmitType::class, [
-                'attr' => ['class' => 'btn btn-success my-3'],
-            ])
-            ->getForm();
-
-        $formulario->handleRequest($request);
-
-        //$formulario = $this->createForm(PeliculaFormType::class, $peli);
+        //crea el formulario
+        $formulario = $this->createForm(PeliculaFormType::class, $peli);
+        $formulario->handleRequest($request);        
 
         //si el formulario ha sido enviado y es valido
-
         if ($formulario->isSubmitted() && $formulario->isValid()) {
+
+            //recuperación del fichero
+            $file = $request->files->get('pelicula_form')['caratula'];
+            dd($file);
+
+            if($file){ //si hay fichero...
+              //cálculo extensión, directorio y nombre del fichero
+              $extension = $file->guessExtension();
+              $directorio = $this->getParameter('app.covers_root');
+              $fichero = uniqid().".$extension";
+
+              //muevo el fichero a su ubicación final
+              $file->move($directorio, $fichero); //move(directorio, nombrefichero)
+
+              //actualizo los datos de la peli
+              $peli->setCaratula($fichero);
+            }
+
             //almacenar los datos de la peli en la BDD
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($peli);
-            $entityManager->flush();
+            $entityManager->persist($peli);  //indica a doctrine que queremos guardar la peli
+            $entityManager->flush(); //ejecuta las consultas
 
             //flashear el mensaje
-            //flashear y logear el mensaje
-            $mensaje = 'Película '.$peli->getTitulo().' guardada con id '.$peli->getId();
-            $this->addFlash('success', $mensaje);
-            $appInfoLogger->info($mensaje);
-
+            //$mensaje = 'Película '.$peli->getTitulo().' guardada con id '.$peli->getId();
+            $this->addFlash('success', 'Pelicula guardada con id '.$peli->getId());
+            
             //redirige a la vista de detalles
             return $this->redirectToRoute('pelicula_show', ['id' => $peli->getId()]);
         }        
 
-        //retornar la vista
+        //retornar la vista con el formulario
         return $this->render('pelicula/create.html.twig', [
             'formulario' => $formulario->createView(),
         ]);
@@ -188,14 +184,39 @@ class PeliculaController extends AbstractController
 
     public function edit(Pelicula $peli, Request $request): Response
     {
+        $fichero = $peli->getCaratula(); //nombre del fichero original
+
         //crea el formulario
         $formulario = $this->createForm(PeliculaFormType::class, $peli);
         $formulario->handleRequest($request);
 
         //si el formulario fue enviado y es válido
         if ($formulario->isSubmitted() && $formulario->isValid()) {
+
+            //recuperación del nuevo fichero
+            $file= $request->files->get('pelicula_form')['caratula'];
+
+            if($file){ //si hay un nuevo fichero... 
+                $directorio = $this->getParameter('app.covers_root'); //directorio
+
+                //borramos el fichero viejo (si lo había)
+                if($fichero){
+                    $filesystem = new Filesystem();
+                    $filesystem->remove("$directorio/$fichero");
+                }
+
+                //calculamos los datos del nuevo
+                $extension = $file->guessExtension(); //extensión
+                $fichero = uniqid().".$extension"; //nombre final del nuevo fichero
+
+                $file->move($directorio, $fichero); //movemos el fichero nuevo a su ubicación final
+            }
+
+            $peli->setCaratula($fichero); //actualizamos el campo carátula de la peli
+
             //guarda los cambios en la BDD
             $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($peli); //guarda la peli
             $entityManager->flush(); //ejecuta las consultas
 
             //flashear el mensaje
@@ -226,7 +247,15 @@ class PeliculaController extends AbstractController
 
         //si el formulario fue enviado y es válido
         if ($formulario->isSubmitted() && $formulario->isValid()) {
+
+            if($peli->getCaratula()){ //si hay caratula
+                //borra el fichero
+                $filesystem = new Filesystem();
+                $directorio = $this->getParameter('app.covers_root');
+                $filesystem->remove($directorio.'/'.$peli->getCaratula());
+            }
             //guarda los cambios en la BDD
+            //borra la pelicula de la BDD
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($peli);
             $entityManager->flush(); //ejecuta las consultas
@@ -244,4 +273,29 @@ class PeliculaController extends AbstractController
             'pelicula' => $peli,
         ]);
     }
+
+    /**
+     * @Route("/pelicula/deleteImage/{id}")
+     */
+
+    public function deleteImage(Pelicula $peli, Request $request): Response{
+        if($peli->getCaratula()){//si hay getCaratula
+            //borra el fichero
+            $filesystem = new Filesystem();
+            $directorio = $this->getParameter('app.covers_root');
+            $filesystem->remove($directorio.'/'.$peli->getCaratula());
+
+            //pone a null el campo en la BDD
+            $peli->setCaratula(NULL);
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->remove($peli);
+            $entityManager->flush(); 
+        }
+        //carga la vista con el formulario
+        return $this->redirectToRoute('pelicula_edit', ['id' => $peli->getId()]);
+
+        
+    }
 }
+
+

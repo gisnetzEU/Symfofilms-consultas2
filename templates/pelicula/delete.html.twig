@@ -4,13 +4,19 @@
 {% endblock %}
 {% block main %}
   {{ parent() }}
-  <p>
-    Borrado de la película <b>{{ pelicula.titulo }}</b>.
-  </p>
-
-  <p>
-    Por favor, confirma la operación de borrado mediante el formulario.
-  </p>
-
-  {{ form(formulario) }}
+  <div class="border row align-items-center justify-content-center my-3">
+    <div class="col-6">
+      <p>Borrado de la película <b>{{ pelicula.titulo }}</b>.</p>
+      <p>Por favor, confirma la operación de borrado mediante el formulario.</p>
+      {{ form(formulario) }}
+    </div>
+    <div class="col-6 text-center">
+      <figure class="p-2">
+        <img class="rounded" style="max-width: 220px"
+          alt="Carátula de {{pelicula.titulo}}"
+          title="Carátula de {{pelicula.titulo}}"
+          src="{{asset(covers_directory~'/'~(pelicula.caratula ?? 'default.jpg'))}}">
+      </figure>
+    </div>
+  </div>
 {% endblock %}

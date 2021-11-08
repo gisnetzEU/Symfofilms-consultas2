@@ -8,3 +8,11 @@ monolog:
             level: debug
             channels: ["app_info"]
             buffer_size: 500
+        symfony_mailer:
+            type: symfony_mailer
+            from_email: 'admin@symfofilms.com'
+            to_email: '%app.admin_email%'
+            channels: ["app_info"]
+            subject: 'Symfofilms: %%message%%'
+            formatter: monolog.formatter.html
+            content_type: text/html
