@@ -7,6 +7,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Address;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -37,18 +39,21 @@ class DefaultController extends AbstractController
       //si el formulario fue enviado y es válido
       if($formulario->isSubmitted() && $formulario->isValid()){
 
-        //tomar los parámetro que lleguen por POST
-        $nombre = $request->request->get('contacto_form')['nombre'];
-        $asunto = $request->request->get('contacto_form')['asunto'];
-        $mensaje = $request->request->get('contacto_form')['mensaje'];
-        $de = $request->request->get('contacto_form')['email'];
-
+        $datos = $formulario->getData();//recuperamos los datos del formulario
+     
         //preparar el email
-        $email = (new Email())
-          ->from($de)
+        $email = new TemplatedEmail();
+        $email->from(new Address($datos['email'], $datos['nombre']))
           ->to($this->getParameter('app.admin_email'))
-          ->subject($asunto)
-          ->text($mensaje);
+          ->subject($datos['asunto'])
+          //template que usaremos para el email
+          ->htmlTemplate('email/contact.html.twig')
+          ->context([
+            'de'=>$datos['email'],
+            'nombre'=>$datos['nombre'],
+            'asunto'=>$datos['asunto'],
+            'mensaje'=>$datos['mensaje'],
+          ]);
 
         //enviar el email
         $mailer->send($email);
@@ -56,11 +61,10 @@ class DefaultController extends AbstractController
         //flashear mensaje y redirigir a la portada
         $this->addFlash('success', 'Mensaje enviado correctamente');
         return $this->redirectToRoute('portada');
-
       }
 
       //muestra la vista con el formulario
-      return $this->render("contacto.html.twig", ["formulario"=>$formulario->createView()]);
+      return $this->renderForm("contacto.html.twig", ["formulario"=>$formulario]);
 
   }
 }

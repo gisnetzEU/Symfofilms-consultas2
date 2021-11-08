@@ -2,6 +2,16 @@ twig:
     default_path: '%kernel.project_dir%/templates'
     form_themes: ['bootstrap_5_layout.html.twig']
 
+    # globals:
+    #     covers_directory: '%app.covers%'        
+
+    paths:
+        # point this wherever your css files live
+        '%kernel.project_dir%/public/css': styles
+
+        # point this wherever your images live
+        '%kernel.project_dir%/public/images': images
+
 when@test:
     twig:
         strict_variables: true

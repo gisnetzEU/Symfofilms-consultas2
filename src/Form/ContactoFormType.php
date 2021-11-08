@@ -10,11 +10,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
-class ContactoFormType extends AbstractType
-{
+class ContactoFormType extends AbstractType{
     public function buildForm(FormBuilderInterface $builder, array $options){
-        $builder
-            ->add('nombre', TextType::class)
+        $builder->add('nombre', TextType::class)
             ->add('asunto', TextType::class)
             ->add('email', EmailType::class)
             ->add('mensaje', TextareaType::class)

@@ -1,0 +1,11 @@
+{% extends 'email.html.twig' %}
+{% block main %}
+  
+  <h2>Nuevo mensaje </h2>
+  <h3>{{ asunto }} </h3>
+
+  <p><b>De {{ nombre }} ({{ de }})</b></p>
+
+  <p>{{ mensaje|replace({"\n":"</p><p>"}) }}</p>
+
+{% endblock %}
