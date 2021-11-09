@@ -4,15 +4,15 @@
 {% endblock %}
 {% block main %}
   {{ parent() }}
-  <div class="border row align-items-center justify-content-center my-3">
-    <div class="col-6">
+  <div class="bg-light border row align-items-center justify-content-center my-3">
+    <div class="col-6 p-4">
       <p>Borrado de la película <b>{{ pelicula.titulo }}</b>.</p>
       <p>Por favor, confirma la operación de borrado mediante el formulario.</p>
       {{ form(formulario) }}
     </div>
-    <div class="col-6 text-center">
+    <div class="col-6 text-center bg-light">
       <figure class="p-2">
-        <img class="rounded" style="max-width: 220px"
+        <img class="rounded border movie-cover" style="max-width: 220px"
           alt="Carátula de {{pelicula.titulo}}"
           title="Carátula de {{pelicula.titulo}}"
           src="{{asset(covers_directory~'/'~(pelicula.caratula ?? 'default.jpg'))}}">

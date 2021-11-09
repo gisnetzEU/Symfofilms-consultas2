@@ -14,6 +14,9 @@
         ID
       </th>
       <th>
+        Carátula
+      </th>
+      <th>
         Título
       </th>
       <th>
@@ -39,10 +42,10 @@
         </td>
         <td class="text-center">
           <a href="{{ path('pelicula_show', {'id':peli.id}) }}">
-            <img class="lista-cover rounded"
+            <img class="lista-cover rounded" style="width:80%; max-width:60px"
               alt="Carátula de {{peli.titulo}}"
               title="Carátula de {{peli.titulo}}"
-              src="{{asset(covers_directory~'/'~(peli.caratula ?? 'default.jpg'))}}">
+              src="{{asset(covers_directory~'/'~(peli.caratula ?? 'default.jpg' ))}}">
           </a>
         </td>
         <td>

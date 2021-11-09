@@ -58,7 +58,7 @@ class PeliculaController extends AbstractController
       /**
      * @Route("/pelicula/create", name="pelicula_create")
      */
-    public function create(Request $request): Response
+    public function create(Request $request, LoggerInterface $appInfoLogger): Response
     {
         $peli = new Pelicula();//crea el objeto de tipo Pelicula
 
@@ -71,7 +71,7 @@ class PeliculaController extends AbstractController
 
             //recuperación del fichero
             $file = $request->files->get('pelicula_form')['caratula'];
-            dd($file);
+            //dd($file);
 
             if($file){ //si hay fichero...
               //cálculo extensión, directorio y nombre del fichero
@@ -92,8 +92,10 @@ class PeliculaController extends AbstractController
             $entityManager->flush(); //ejecuta las consultas
 
             //flashear el mensaje
-            //$mensaje = 'Película '.$peli->getTitulo().' guardada con id '.$peli->getId();
-            $this->addFlash('success', 'Pelicula guardada con id '.$peli->getId());
+            //flashear y logear el mensaje
+            $mensaje = 'Película '.$peli->getTitulo().' guardada con id '.$peli->getId();
+            $this->addFlash('success', $mensaje);
+            $appInfoLogger->info($mensaje);
             
             //redirige a la vista de detalles
             return $this->redirectToRoute('pelicula_show', ['id' => $peli->getId()]);
@@ -241,11 +243,11 @@ class PeliculaController extends AbstractController
 
     public function delete(Pelicula $peli, Request $request): Response
     {
-        //crea el formulario
+        //creación del formulario de confirmación
         $formulario = $this->createForm(PeliculaDeleteFormType::class, $peli);
         $formulario->handleRequest($request);
 
-        //si el formulario fue enviado y es válido
+        //si el formulario llega y es válido
         if ($formulario->isSubmitted() && $formulario->isValid()) {
 
             if($peli->getCaratula()){ //si hay caratula
@@ -254,10 +256,10 @@ class PeliculaController extends AbstractController
                 $directorio = $this->getParameter('app.covers_root');
                 $filesystem->remove($directorio.'/'.$peli->getCaratula());
             }
-            //guarda los cambios en la BDD
+            
             //borra la pelicula de la BDD
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($peli);
+            $entityManager->remove($peli); //indica que hay que borrar la película
             $entityManager->flush(); //ejecuta las consultas
 
             //flashear el mensaje
@@ -275,11 +277,16 @@ class PeliculaController extends AbstractController
     }
 
     /**
-     * @Route("/pelicula/deleteImage/{id}")
+     * @Route(
+     *     "/pelicula/deleteImage/{id<\d+>}",
+     *     name="pelicula_delete_cover",
+     *     methods={"GET"}
+     * )
      */
 
     public function deleteImage(Pelicula $peli, Request $request): Response{
-        if($peli->getCaratula()){//si hay getCaratula
+
+        if($peli->getCaratula()){//si hay carátula
             //borra el fichero
             $filesystem = new Filesystem();
             $directorio = $this->getParameter('app.covers_root');
@@ -288,8 +295,13 @@ class PeliculaController extends AbstractController
             //pone a null el campo en la BDD
             $peli->setCaratula(NULL);
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($peli);
-            $entityManager->flush(); 
+            //$entityManager->remove($peli);
+            $entityManager->flush(); //ejecuta las consultas
+
+            $mensaje = 'Carátula de la película '.$peli->getTitulo().' borrada.';
+            $this->addFlash('success', $mensaje);
+
+
         }
         //carga la vista con el formulario
         return $this->redirectToRoute('pelicula_edit', ['id' => $peli->getId()]);

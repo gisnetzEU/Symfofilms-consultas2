@@ -7,7 +7,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Validator\Constrains\File;
+use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\HttpFoundation\File\UploadFile;
 use Symfony\Component\Filesystem\Filesystem;
 //use Symfony\Component\HttpFoundation\File\File;
@@ -42,10 +42,10 @@ class PeliculaFormType extends AbstractType
                     ])
                 ]
             ])
-            ->add('Guardar', SubmitType::class, [
-                'attr' => ['class' => 'btn btn-success my-3']
-            ]);
-            //->getForm();
+            ->add('Actualizar', SubmitType::class, [
+                'attr' => ['class' => 'btn btn-success my-3'],
+            ])
+            ->getForm();
     }
 
     public function configureOptions(OptionsResolver $resolver)
