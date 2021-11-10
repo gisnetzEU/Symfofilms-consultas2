@@ -13,12 +13,13 @@
       {{ form(formulario) }}
     </div>
     <div class="col-6 text-center">
-      <figure class="my-2 p-2 ">
-        <img class="rounded border movie-cover" style="max-width: 220px"
+      <h4>Carátula actual</h4>
+      <figure class="my-2 p-2">
+        <img id="actual"
+          class="rounded border movie-cover" style="max-width: 220px"
           alt="Carátula de {{pelicula.titulo}}"
           title="Carátula de {{pelicula.titulo}}"
-          src="{{asset(covers_directory~'/'~(pelicula.caratula ?? 'default.jpg'))}}">
-        
+          src="{{asset(covers_directory~'/'~(pelicula.caratula??'default.jpg'))}}">        
         {% if pelicula.caratula %}
         <figcaption class="my-3 text-center">
           Borrar esta Carátula
@@ -28,7 +29,18 @@
           </a>
         </figcaption>
         {% endif %}
-      <figure>
+      </figure>
+      <h4>Previsualización</h4>
+      <figure class="my-2 p-2">
+        <img id="preview"
+          class="rounded border movie-cover" style="max-width: 220px"
+          src="{{asset(covers_directory~'/'~(pelicula.caratula??'default.jpg'))}}">
+        <figcaption class="my-3 text-center">
+          Carátula tras aplicar los cambios
+        </figcaption>
+      </figure>
+
+      <script src="{{asset('/js/previewEdit.js')}}"></script>
     </div>
   </div>
 {% endblock %}
