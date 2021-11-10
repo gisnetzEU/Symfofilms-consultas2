@@ -2,13 +2,17 @@ twig:
     # directorio por defecto para los templates
     default_path: '%kernel.project_dir%/templates'
 
-    # integra bootstrap 5 para los formularios
-    form_themes: ['bootstrap_5_layout.html.twig']
-
     # variables globales
     globals:
         # directorio de las carátulas
-        covers_directory: '%app.covers%'        
+        covers_directory: '%app.covers%'
+
+        #variable global compartida para todas las vistas
+        #el valor indicado es el id del servicio
+        frase: '@App\Service\FrasesService'
+        
+    # integra bootstrap 5 para los formularios
+    form_themes: ['bootstrap_5_layout.html.twig']      
 
     paths:
         # point this wherever your css files live

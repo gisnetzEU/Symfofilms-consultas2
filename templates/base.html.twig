@@ -25,14 +25,17 @@
   <body class="container p-3">
     {% block header %}
       <header class="row border bg-light">
-        <hgroup class="col-8">
-          <h1>
-            SymfoFilms
-          </h1>
-          <h2>
-            Página de cine, ejemplo de clase.
-          </h2>
-        </hgroup>
+        <div class="col-8">
+          <hgroup>
+            <h1>
+              SymfoFilms
+            </h1>
+            <h2>
+              Página de cine, ejemplo de clase.
+            </h2>
+          </hgroup>
+          <p style="font-style:italic">"{{ frase.getFraseAleatoria() }}"</p>
+        </div>
         <figure class="col-4 text-end">
           <a href="/">
             <img class="h-auto"
