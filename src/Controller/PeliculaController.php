@@ -70,6 +70,9 @@ class PeliculaController extends AbstractController
         //si el formulario ha sido enviado y es válido
         if ($formulario->isSubmitted() && $formulario->isValid()) {
 
+            //cambia el directorio configurado en services.yaml
+            $uploader->targetDirectory = $this->getParameter('app.covers_root');
+            
             //recuperación del fichero
             $file = $formulario->get('caratula')->getData();
             
@@ -184,6 +187,9 @@ class PeliculaController extends AbstractController
 
         //si el formulario fue enviado y es válido
         if ($formulario->isSubmitted() && $formulario->isValid()) {
+
+            //crea una instancia de FileService (en lugar de inyectarla por parámetro)
+            $uploader = new FileService($this->getParameter('app.covers_root'));
 
             //recuperación del nuevo fichero
             $file = $formulario->get('caratula')->getData();
