@@ -57,7 +57,7 @@ class FileService{
 
             if($anterior){ //si había fichero anterior, bórralo
                 $filesystem = new Filesystem();
-                $filesystem->remove("this->targetDirectory/$anterio");
+                $filesystem->remove("this->targetDirectory/$anterior");
             }
         }catch(FileException $e){
             //si falló la subida del nuevo fichero

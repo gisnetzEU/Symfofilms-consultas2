@@ -14,6 +14,9 @@ parameters:
     app.covers: '%env(APP_COVERS)%'
     app.covers_root: '%kernel.project_dir%/public/%app.covers%'
 
+# número de resultados por página para la paginación
+    app.page_results: 5
+
 # directorio para la subida de retratos de actores (relativa y absoluta)
     app.portraits: '%env(APP_PORTRAITS)%'
     app.portraits_root: '%kernel.project_dir%/public/%app.portraits%'
@@ -21,9 +24,6 @@ parameters:
 # directorio para la subida de fotos de usuario (relativa y absoluta)
     app.users_pics: '%env(APP_USERS_PICS)%'
     app.users_pics_root: '%kernel.project_dir%/%app.users_pics%'
-
-# número de resultados por página para la paginación
-    app.page_results: 5
 
 services:    
     # default configuration for services in *this* file
@@ -45,3 +45,8 @@ services:
     App\Service\FileService:
         arguments:
             $targetDirectory: '%app.uploads_dir%'
+    
+    App\Service\PaginatorService:
+        # para el autowiring
+        arguments:
+            $limit: '%app.page_results%'

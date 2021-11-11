@@ -13,26 +13,36 @@ use App\Entity\Pelicula;
 use App\Form\PeliculaFormType;
 use App\Form\PeliculaDeleteFormType;
 use App\Service\FileService;
+use App\Service\PaginatorService;
 use Psr\Log\LoggerInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class PeliculaController extends AbstractController
 {
     /**
-     * @Route("/peliculas", name="pelicula_list")
+     * @Route(
+     *  "/peliculas/{pagina}",
+     *  defaults={"pagina": 1},
+     *  name="pelicula_list",
+     *  methods={"GET"}
+     * )
      */
 
-    public function index(): Response
-    {
-        //recuperamos las pelis haciendo uso del repositorio PeliculaRepository,
-        //haciendo uso del método findAll()
-        $pelis = $this->getDoctrine()
-            ->getRepository(Pelicula::class)
-            ->findall();
+    public function index(int $pagina, PaginatorService $paginator): Response{
 
-        //cargamos la vista con el listado de películas y le pasamos las pelis recuperadas
-        return $this->render('pelicula/list.html.twig', [
-            'peliculas' => $pelis,
+        //le indicamos al paginador que trabajaremos con Película
+        $paginator->setEntityType('App\Entity\Pelicula');
+
+        //le pedimos que nos recupere todas las peliculas con paginación
+        $peliculas = $paginator->findAllEntities($pagina);
+
+        //cargamos la vista del listado de películas, pasandole toda la información
+        return $this->renderForm("pelicula/list.html.twig", [
+            'peliculas' => $peliculas,
+            'totalPaginas' => $paginator->getTotalPages(),
+            'totalPeliculas' => $paginator->getTotal(),
+            'paginaActual' => $pagina
         ]);
     }
 

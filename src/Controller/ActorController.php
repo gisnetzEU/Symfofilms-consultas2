@@ -6,46 +6,53 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Filesystem\Filesystem;
+
 
 use App\Entity\Actor;
 use App\Form\ActorFormType;
 use App\Form\ActorDeleteFormType;
 
+use App\Service\FileService;
+use App\Service\PaginatorService;
 use Psr\Log\LoggerInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class ActorController extends AbstractController
 {
-   /* #[Route('/actor', name: 'actor')]
-    public function index(): Response
-    {
-        return $this->render('actor/index.html.twig', [
-            'controller_name' => 'ActorController',
-        ]);
-    }
-    */
-
-  /**
-     * @Route("/actores", name="actor_list")
+    /**
+     * @Route(
+     *   "/actores/{pagina}",
+     *   defaults={"pagina": 1},
+     *   name="actor_list"),
+     *   methods={"GET"}
      */
 
-    public function index(): Response
+    public function index(int $pagina, PaginatorService $paginator): Response
     {
-        //recuperamos los actores haciendo uso del repositorio ActorRepository,
-        //haciendo uso del método findAll()
-        $actores = $this->getDoctrine()
-            ->getRepository(Actor::class)
-            ->findall();
+        
+        //le indicamos al paginador que trabajaremos con Película
+        $paginator->setEntityType('App\Entity\Actor');
 
+        //le pedimos que nos recupere todas las peliculas con paginación
+        $actores = $paginator->findAllEntities($pagina);
+        
         //cargamos la vista con el listado de actores y le pasamos los actores recuperados
         return $this->render('actor/list.html.twig', [
             'actores' => $actores,
+            'totalPaginas' => $paginator->getTotalPages(),
+            'totalActores' => $paginator->getTotal(),
+            'paginaActual' => $pagina
         ]);
     }
 
