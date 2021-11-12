@@ -89,4 +89,10 @@ class Actor
 
         return $this;
     }
+
+    //método __toString de Actor (útil para pruebas)
+    public function __toString(){
+        return "ID: $this->id - $this->nom ($this->nacionalitat),
+        nacido el ".$this->datadenaixement->format('d/m/Y');
+    }
 }

@@ -5,13 +5,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Routing\Annotation\Route;
+
 use App\Entity\Pelicula;
 use App\Form\PeliculaFormType;
 use App\Form\PeliculaDeleteFormType;
+
 use App\Service\FileService;
 use App\Service\PaginatorService;
 use Psr\Log\LoggerInterface;
@@ -289,6 +292,27 @@ class PeliculaController extends AbstractController
         }
         //carga la vista con el formulario
         return $this->redirectToRoute('pelicula_edit', ['id' => $peli->getId()]);        
+    }
+
+    /**
+     * @Route(
+     *     "/pelicula/duracion/{min<\d*>}/{max<\d*>}",
+     *     name="pelicula_duracion",
+     *     defaults={"min":0, "max":99999}
+     * )
+     */
+
+    public function duracion(int $min, int $max){
+        $repositorio = $this->getDoctrine()->getRepository(Pelicula::class);
+        $pelis = $repositorio->findAllByDuration($min, $max);
+
+        //carga la vista de listado de peículas, pasándole toda la información
+        return $this->renderForm("pelicula/list.html.twig", [
+            'peliculas' => $pelis,
+            'totalPaginas' => 1,
+            'totalPeliculas' => 1,
+            'paginaActual' => 1
+        ]);
     }
 }
 

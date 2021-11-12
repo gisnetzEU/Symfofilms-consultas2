@@ -48,7 +48,7 @@ class ActorController extends AbstractController
         $actores = $paginator->findAllEntities($pagina);
         
         //cargamos la vista con el listado de actores y le pasamos los actores recuperados
-        return $this->render('actor/list.html.twig', [
+        return $this->renderForm('actor/list.html.twig', [
             'actores' => $actores,
             'totalPaginas' => $paginator->getTotalPages(),
             'totalActores' => $paginator->getTotal(),
