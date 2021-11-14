@@ -9,6 +9,23 @@
     Esta es la portada del sitio web <b>Symfofilms</b>.
   </p>
 
+ {#  <div class="d-flex align-items-stretch">
+    {% for pelicula in peliculas %}
+    <figure class="media-body m-2 p-2 text-center">
+      <a href="{{path('pelicula_show',{'id':pelicula.id})}}">
+      <img class="border w-100 h-100"
+        alt="{{pelicula.titulo}}"
+        src="{{ asset(covers_directory~'/'~pelicula.caratula)}}">
+      </a>
+    <figcaption class="text-center small">
+      <a href="{{path('pelicula_show',{'id':pelicula.id})}}">
+        {{pelicula.titulo}}
+      </a>
+    </figcaption>
+   </figure>
+   {% endfor %}
+  </div> #}
+
   <div class="d-flex">
     <figure class="m-2">
       <img class="img-fluid"

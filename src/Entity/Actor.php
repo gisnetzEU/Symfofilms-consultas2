@@ -37,6 +37,11 @@ class Actor
      */
     private $biografia;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $caratula;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -94,5 +99,17 @@ class Actor
     public function __toString(){
         return "ID: $this->id - $this->nom ($this->nacionalitat),
         nacido el ".$this->datadenaixement->format('d/m/Y');
+    }
+
+    public function getCaratula(): ?string
+    {
+        return $this->caratula;
+    }
+
+    public function setCaratula(?string $caratula): self
+    {
+        $this->caratula = $caratula;
+
+        return $this;
     }
 }

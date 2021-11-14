@@ -10,7 +10,6 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\HttpFoundation\File\UploadFile;
 use Symfony\Component\Filesystem\Filesystem;
-//use Symfony\Component\HttpFoundation\File\File;
 
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;

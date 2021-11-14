@@ -22,7 +22,20 @@ class DefaultController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
          
-    public function index():Response{
+   /*  public function index(EntityManagerInterface $em){
+      $peliculas = $em->createQuery(
+          'SELECT p
+          FROM App\Entity\Pelicula p
+          WHERE p.caratula IS NOT NULL
+          ORDER BY p.id ASC')           
+      ->getResult();        
+
+      $respuesta = implode('<br>', $peliculas);
+      return new Response($respuesta);
+      } */
+
+
+      public function index():Response{
       return $this->render("portada.html.twig");
     }
 

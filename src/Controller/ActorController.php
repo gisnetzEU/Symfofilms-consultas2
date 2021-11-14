@@ -148,32 +148,45 @@ class ActorController extends AbstractController
     }
 
     /**
-     * @Route("/actor/create", name="actor_create")
+     * @Route("/actor/create", name="actor_create", methods={"GET", "POST"})
      */
-    public function create(Request $request,  LoggerInterface $appInfoLogger): Response
+    public function create(Request $request,  LoggerInterface $appInfoLogger, FileService $uploader): Response
     {
         $actuante = new Actor();
 
-        $formulario = $this->createFormBuilder($actuante)
-            ->add('nom', TextType::class)
-            ->add('datadenaixement', DateType::class, [
-                'empty_data' => 0,
-                'html5' => true,
-            ])
-            ->add('nacionalitat', TextType::class)
-            ->add('biografia', TextareaType::class)            
-            ->add('Guardar', SubmitType::class, [
-                'attr' => ['class' => 'btn btn-success my-3'],
-            ])
-            ->getForm();
-
+        $formulario = $this->createForm(ActorFormType::class, $actuante);
         $formulario->handleRequest($request);
+
+            // ->add('nom', TextType::class)
+            // ->add('datadenaixement', DateType::class, [
+            //     'empty_data' => 0,
+            //     'html5' => true,
+            // ])
+            // ->add('nacionalitat', TextType::class)
+            // ->add('biografia', TextareaType::class)            
+            // ->add('Guardar', SubmitType::class, [
+            //     'attr' => ['class' => 'btn btn-success my-3'],
+            // ])
+            // ->getForm();
+
+        
 
         //$formulario = $this->createForm(ActorFormType::class, $actuante);
 
         //si el formulario ha sido enviado y es valido
 
         if ($formulario->isSubmitted() && $formulario->isValid()) {
+
+            //cambia el directorio configurado en services.yaml
+            $uploader->targetDirectory = $this->getParameter('portraits');
+            
+            //recuperación del fichero
+            $file = $formulario->get('caratula')->getData();
+            
+            if($file) //si hay fichero...              
+              $actuante->setCaratula($uploader->upload($file)); //sube el fichero y asigna el nombre de la carátula al actor
+
+
             //almacenar los datos del actuante en la BDD
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($actuante);
@@ -187,20 +200,10 @@ class ActorController extends AbstractController
             //redirige a la vista de detalles
             return $this->redirectToRoute('actor_show', ['id' => $actuante->getId()]);
         
-
-            //flashear el mensaje
-            /* $this->addFlash(
-                'success',
-                'Actor guardada con id ' . $actuante->getId()
-            );
-
-            return $this->redirectToRoute('actor_show', [
-                'id' => $actuante->getID(),
-            ]); */
         }
 
         //retornar la vista
-        return $this->render('actor/create.html.twig', [
+        return $this->renderForm('actor/create.html.twig', [
             'formulario' => $formulario->createView(),
         ]);
     }

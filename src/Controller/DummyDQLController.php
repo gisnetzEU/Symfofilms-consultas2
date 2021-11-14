@@ -288,7 +288,7 @@ class DummyDQLController extends AbstractController
     /**
      * @Route("/dummy/dql11")
      */
-    /* public function dql11(EntityManagerInterface $em){
+    public function dql11(EntityManagerInterface $em){
         //campos calculados
         $peliculas = $em->createQuery(
             'SELECT p.titulo, YEAR(CURRENT_DATE())-p.estreno AS antiguedad
@@ -299,9 +299,152 @@ class DummyDQLController extends AbstractController
         //el resultado llega como un array de arrays
         $resultado = '';
         foreach($peliculas as $pelicula)
-            $resultado .= implode(' - ', $peliculas).'<br>';
+            $resultado .= implode(' - ', $pelicula).'<br>';
 
         return new Response("Antiguedad de las pelis:<br>".$resultado);
-    } */
+    }
+    
+     /**
+     * @Route("/dummy/dql12")
+     */
+    public function dql12(EntityManagerInterface $em){
+        //ejemplo de consulta con cálculo de totales
+        $promedio = $em->createQuery(
+            'SELECT AVG(p.valoracion) AS prom
+            FROM App\Entity\Pelicula p')           
+        ->getSingleScalarResult(); //recupera un único valoracion
+
+        return new Response("Valoración promedio: $promedio");
+    }
+
+     /**
+     * @Route("/dummy/dqlgroup")
+     */
+    public function dqlgroup(EntityManagerInterface $em){
+        //ejemplo de consulta con cálculo de totales
+        $estadisticas = $em->createQuery(
+            'SELECT p.genero, COUNT(p.id) AS total
+            FROM App\Entity\Pelicula p
+            GROUP BY p.genero
+            ORDER BY total DESC')           
+        ->getResult(); 
+        
+        //el resultado llega como un arry de arrays
+        $resultado = '';
+        foreach($estadisticas as $estadistica)
+          $resultado .= implode(' - ', $estadistica).'<br>';
+
+        return new Response($resultado);
+    }
+
+     /**
+     * @Route("/dummy/dqlpartial")
+     */
+    public function dqlpartial(EntityManagerInterface $em){
+        $query = $em->createQuery(
+            'SELECT partial p.{id, titulo, estreno}
+            FROM App\Entity\Pelicula p
+            WHERE p.estreno IS NOT NULL
+            ORDER BY p.estreno ASC')           
+        ->getResult(); 
+        
+        dd($query);
+        return new Response($resultado);
+    }
+
+    /**
+     * @Route("/dummy/dqlnew")
+     */
+    public function dqlnew(EntityManagerInterface $em){
+        //campos calculados
+        $peliculas = $em->createQuery(
+            'SELECT NEW MiEntidad(p.titulo, p.valoracion)
+            FROM App\Entity\Pelicula p')           
+        ->getResult(); 
+        
+        return new Response(implode('<br>', $peliculas));
+    }
+    /**
+     * @Route("/dummy/dqlsubconsulta")
+     */
+    public function dqlsubconsulta(EntityManagerInterface $em){
+        //películas con una valoración por debajo del promedio
+        $peliculas = $em->createQuery(
+            'SELECT p
+            FROM App\Entity\Pelicula p
+            WHERE p.valoracion < (SELECT AVG(x.valoracion)
+               FROM App\Entity\Pelicula x)')           
+        ->getResult(); 
+        
+        $respuesta = implode('<br>', $peliculas);
+        return new Response($respuesta);
+    }
+
+    /**
+     * @Route("/dummy/dqlall")
+     */
+    public function dqlsubconsulta2(EntityManagerInterface $em){
+        //películas con estreno anterior a todas las de anime
+        $peliculas = $em->createQuery(
+            'SELECT p
+            FROM App\Entity\Pelicula p
+            WHERE p.estreno < ALL (SELECT x.estreno
+               FROM App\Entity\Pelicula x
+               WHERE x.genero = \'Anime\')')           
+        ->getResult();        
+
+        $respuesta = implode('<br>', $peliculas);
+        return new Response($respuesta);
+    }
+
+    /**
+     * @Route("/dummy/dqlupdate")
+     */
+    public function dqlupdate(EntityManagerInterface $em){
+        
+        $registros = $em->createQuery(
+            'UPDATE App\Entity\Pelicula p
+            SET p.valoracion = 0
+            WHERE p.valoracion IS NULL')           
+        ->getSingleScalarResult();        
+
+        $respuesta = $registros === null?
+            "ERROR":
+            "Se actualizaron $registros registros";
+        return new Response($respuesta);
+    }
+
+    /**
+     * @Route("/dummy/dqldelete")
+     */
+    public function dqldelete(EntityManagerInterface $em){
+        
+        $registros = $em->createQuery(
+            'DELETE App\Entity\Pelicula p
+            WHERE p.valoracion = 0')           
+        ->getSingleScalarResult();        
+
+        $respuesta = $registros === null?
+            "ERROR":
+            "Se eliminaron $registros registros";
+        return new Response($respuesta);
+    }
+
+    /**
+     * @Route("/dummy/portada3")
+     */
+
+     public function portada3(EntityManagerInterface $em){
+      $peliculas = $em->createQuery(
+          'SELECT p
+          FROM App\Entity\Pelicula p
+          WHERE p.caratula IS NOT NULL
+          ORDER BY p.id ASC')           
+      ->getResult();        
+
+      $respuesta = implode('<br>', $peliculas);
+      return new Response($respuesta);
+      }
+
 
 }
